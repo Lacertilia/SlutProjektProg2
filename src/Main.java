@@ -28,12 +28,14 @@ public class Main extends Canvas {
     private boolean movingDown = false;
     private boolean movingRight = false;
     private String direction = "Down";
-
+    private long moveStop = 1000000000/3;
+    private boolean pickedUp = true;
 
     /**
      * Creating everything for the game.
      * */
     public Main(){
+
         Scanner scan = new Scanner(System.in);
 
 
@@ -49,28 +51,30 @@ public class Main extends Canvas {
 
         long lastUpdate = System.nanoTime();
         long lastMove = System.nanoTime();
-        long moveStop = 1000000000/5;
         long dt = 1000000000/fps;
         while(Started){
             if(System.nanoTime() - lastUpdate > dt){
                 lastUpdate = System.nanoTime();
                 draw();
             }
-            if(movingUp && System.nanoTime()-lastMove >= moveStop && y-move >= 0){
+            if(movingUp && System.nanoTime()-lastMove >= moveStop && !collide()){
                 y -= move;
                 lastMove = System.nanoTime();
             }
-            if(movingLeft && System.nanoTime()-lastMove >= moveStop && x-move >= 0){
+            if(movingLeft && System.nanoTime()-lastMove >= moveStop && !collide()){
                 x -= move;
                 lastMove = System.nanoTime();
             }
-            if(movingDown && System.nanoTime()-lastMove >= moveStop && y+size+move <= height){
+            if(movingDown && System.nanoTime()-lastMove >= moveStop && !collide()){
                 y += move;
                 lastMove = System.nanoTime();
             }
-            if(movingRight && System.nanoTime()-lastMove >= moveStop && x+size+move <= width){
+            if(movingRight && System.nanoTime()-lastMove >= moveStop && !collide()){
                 x += move;
                 lastMove = System.nanoTime();
+            }
+            if(pickedUp){
+                
             }
         }
     }
@@ -88,7 +92,7 @@ public class Main extends Canvas {
     }
 
     /**
-     * Draws the character you play as.
+     * Draws the playable character.
      * @param g Needed in order to draw in current graphics
      */
     private void drawChar(Graphics g){
@@ -101,6 +105,31 @@ public class Main extends Canvas {
         }else if(direction.equals("Right")){
 
         }
+    }
+
+    /**
+     * Checks if player is about to collide with wall or another object. Returns false if not about to collide, true if about to collide.
+     * @return boolean
+     */
+    private boolean collide(){
+        if(direction.equals("Up")){
+            if(y-move >= 0){
+                return false;
+            }
+        }else if(direction.equals("Left")){
+            if(x-move >= 0){
+                return false;
+            }
+        }else if(direction.equals("Down")){
+            if(y+size+move <= height){
+                return false;
+            }
+        }else if(direction.equals("Right")){
+            if(x+size+move <= width){
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
