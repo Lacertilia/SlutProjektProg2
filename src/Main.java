@@ -12,7 +12,7 @@ import static javax.swing.JFrame.EXIT_ON_CLOSE;
 
 public class Main extends Canvas {
     JFrame frame;
-    private int multiple = 5;
+    int multiple = 5;
     int width = 240*multiple;
     int height = 170*multiple;
     static int x = 10;
