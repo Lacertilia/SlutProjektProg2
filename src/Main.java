@@ -12,7 +12,7 @@ import static javax.swing.JFrame.EXIT_ON_CLOSE;
 
 public class Main extends Canvas {
     JFrame frame;
-    int multiple = 5;
+    private int multiple = 5;
     int width = 240*multiple;
     int height = 170*multiple;
     static int x = 10;
@@ -30,6 +30,7 @@ public class Main extends Canvas {
     private String direction = "Down";
     private long moveStop = 1000000000/3;
     private boolean pickedUp = true;
+    Character c;
 
     /**
      * Creating everything for the game.
@@ -39,6 +40,8 @@ public class Main extends Canvas {
         Scanner scan = new Scanner(System.in);
 
         System.out.println("Username?");
+        String username = scan.next();
+
 
 
         frame = new JFrame("Game");
@@ -76,10 +79,21 @@ public class Main extends Canvas {
                 lastMove = System.nanoTime();
             }
             if(pickedUp){
-                
+                placeObject();
+
             }
         }
     }
+
+    /**
+     * Place new object for player to pick up.
+     */
+    private void placeObject() {
+
+
+        pickedUp = false;
+    }
+
     /**
      * Draws the game graphics.
      * */
@@ -107,6 +121,14 @@ public class Main extends Canvas {
         }else if(direction.equals("Right")){
 
         }
+    }
+
+    /**
+     * Draws the object that the player should pick up.
+     * @param g Needed in order to dar in current graphics
+     */
+    private void drawObject(Graphics g){
+
     }
 
     /**
@@ -209,6 +231,13 @@ public class Main extends Canvas {
         }
     }
 
+    /**
+     * Getter for multiple.
+     * @return multiple value
+     */
+    public int getMultiple(){
+        return this.multiple;
+    }
     /**
      * Starter for game.
      * */
