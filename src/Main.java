@@ -38,6 +38,8 @@ public class Main extends Canvas {
 
         Scanner scan = new Scanner(System.in);
 
+        System.out.println("Username?");
+
 
         frame = new JFrame("Game");
         frame.setSize(new Dimension(width, height));
