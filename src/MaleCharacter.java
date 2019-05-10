@@ -4,6 +4,7 @@ public class MaleCharacter extends Character {
 
     public MaleCharacter(){
         super();
+        gender = "Male";
     }
 
     @Override

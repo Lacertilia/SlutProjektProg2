@@ -11,38 +11,41 @@ import static javax.swing.JFrame.EXIT_ON_CLOSE;
  */
 
 public class Main extends Canvas {
-    JFrame frame;
-    private int multiple = 5;
-    int width = 240*multiple;
-    int height = 170*multiple;
-    static int x = 10;
-    static int y = 10;
-    int size = 13*multiple;
-    int move = size;
-    int fps = 30;
-    Image dbImage;
-    static Graphics dbg;
-    static boolean Started = false;
-    private boolean movingUp = false;
-    private boolean movingLeft = false;
-    private boolean movingDown = false;
-    private boolean movingRight = false;
-    private String direction = "Down";
-    private long moveStop = 1000000000/3;
-    private boolean pickedUp = true;
-    Character c;
+    JFrame frame;//Frame that is shown on screen.
+    int multiple = 10;//Multiple for use of a bigger screen than 240px*170px(makes everything bigger.)
+    int width = 240*multiple;//Width of an original Game Boy (240px)
+    int height = 170*multiple;//Height of an original Game Boy (170px)
+    private int blockSize = 13;//Size of a block
+    static int x = 0;//X position for player
+    static int y = 0;//Y position for player
+    int size = blockSize*multiple;//Size of player
+    int move = size;//Moving distance
+    int ups = 30;//How many UPS(Updates per second) the game runs
+    Image dbImage;//Image for double buffered graphics
+    static Graphics dbg;//Graphics for double buffered graphics
+    static boolean Started = false;//Boolean to check if the game is running
+    private boolean movingUp = false;//Boolean to check if player is moving Up
+    private boolean movingLeft = false;//Boolean to check if the player is moving Left
+    private boolean movingDown = false;//Boolean to check if the player is moving Down
+    private boolean movingRight = false;//Boolean to check if the player is moving Right
+    private String direction = "Down";//Direction string for drawing the character in different directions depending on where you last moved.
+    private long moveStop = 1000000000/3;//Determines how long you need to wait between moving
+    private long lastMove = System.nanoTime();//Checks when you last moved
+    private boolean pickedUp = true;//Checks if you have picked up an object
+
+    Object o;//Object that the player will pick up.
 
     /**
-     * Creating everything for the game.
+     * Creator for the game.
      * */
     public Main(){
 
         Scanner scan = new Scanner(System.in);
 
         System.out.println("Username?");
-        String username = scan.next();
+        //String username = scan.next();
 
-
+        //checkUser(username);
 
         frame = new JFrame("Game");
         frame.setSize(new Dimension(width, height));
@@ -50,38 +53,54 @@ public class Main extends Canvas {
         frame.setResizable(false);
         addKeyListener(new KL());
         Started = true;
+        o = new Object();
 
         frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
         frame.setVisible(true);
 
         long lastUpdate = System.nanoTime();
-        long lastMove = System.nanoTime();
-        long dt = 1000000000/fps;
+
+        long dt = 1000000000/ups;
         while(Started){
             if(System.nanoTime() - lastUpdate > dt){
                 lastUpdate = System.nanoTime();
                 draw();
             }
-            if(movingUp && System.nanoTime()-lastMove >= moveStop && !collide()){
-                y -= move;
-                lastMove = System.nanoTime();
-            }
-            if(movingLeft && System.nanoTime()-lastMove >= moveStop && !collide()){
-                x -= move;
-                lastMove = System.nanoTime();
-            }
-            if(movingDown && System.nanoTime()-lastMove >= moveStop && !collide()){
-                y += move;
-                lastMove = System.nanoTime();
-            }
-            if(movingRight && System.nanoTime()-lastMove >= moveStop && !collide()){
-                x += move;
-                lastMove = System.nanoTime();
-            }
+            checkMovement();
             if(pickedUp){
                 placeObject();
-
             }
+        }
+    }
+
+    /**
+     * Checks if user exists in Database.
+     * @param username The username used to search database
+     */
+    private void checkUser(String username) {
+
+    }
+
+    /**
+     * Checks if the player is moving.
+     */
+
+    private void checkMovement(){
+        if(movingUp && System.nanoTime()-lastMove >= moveStop && !collide()){
+            y -= move;
+            lastMove = System.nanoTime();
+        }
+        if(movingLeft && System.nanoTime()-lastMove >= moveStop && !collide()){
+            x -= move;
+            lastMove = System.nanoTime();
+        }
+        if(movingDown && System.nanoTime()-lastMove >= moveStop && !collide()){
+            y += move;
+            lastMove = System.nanoTime();
+        }
+        if(movingRight && System.nanoTime()-lastMove >= moveStop && !collide()){
+            x += move;
+            lastMove = System.nanoTime();
         }
     }
 
@@ -89,7 +108,24 @@ public class Main extends Canvas {
      * Place new object for player to pick up.
      */
     private void placeObject() {
+        boolean xNotPlaced = true;
+        boolean yNotPlaced = true;
+        int objX;
+        int objY;
+        do{
+            objX = (int) (width * Math.random());
+            if(objX%(blockSize * multiple) == 0){
+               xNotPlaced = false;
+            }
+        }while(xNotPlaced);
+        do{
+            objY = (int) (height * Math.random());
+            if(objY%(blockSize * multiple) == 0){
+                yNotPlaced = false;
+            }
+        }while(yNotPlaced);
 
+        o.place(objX, objY);
 
         pickedUp = false;
     }
@@ -104,12 +140,14 @@ public class Main extends Canvas {
         dbg.setColor(Color.MAGENTA);
         dbg.fillRect(x, y, size, size);
 
+        drawObject(dbg);
+
         getGraphics().drawImage(dbImage, 0, 0, this);
     }
 
     /**
-     * Draws the playable character.
-     * @param g Needed in order to draw in current graphics
+     * Draws the playable character depending on where you are looking.
+     * @param g Needed to draw in current Graphics
      */
     private void drawChar(Graphics g){
         if(direction.equals("Up")){
@@ -124,12 +162,14 @@ public class Main extends Canvas {
     }
 
     /**
-     * Draws the object that the player should pick up.
-     * @param g Needed in order to dar in current graphics
+     * Draws the object that the player is supposed to pick up.
+     * @param g Needed to draw in current Graphics
      */
     private void drawObject(Graphics g){
-
+        g.setColor(Color.RED);
+        g.fillRect(o.getX(), o.getY(), size, size);
     }
+
 
     /**
      * Checks if player is about to collide with wall or another object. Returns false if not about to collide, true if about to collide.
@@ -145,7 +185,7 @@ public class Main extends Canvas {
                 return false;
             }
         }else if(direction.equals("Down")){
-            if(y+size+move <= height){
+            if(y+size+2*move <= height){
                 return false;
             }
         }else if(direction.equals("Right")){
@@ -158,7 +198,7 @@ public class Main extends Canvas {
 
     /**
      * Setter for direction.
-     * @param s
+     * @param s String for direction
      */
 
     public void setDirection(String s){
@@ -178,6 +218,13 @@ public class Main extends Canvas {
         System.exit(2);
     }
 
+    private void stopMove(){
+        movingUp = false;
+        movingLeft = false;
+        movingDown = false;
+        movingRight = false;
+    }
+
 
 
     /**
@@ -193,20 +240,27 @@ public class Main extends Canvas {
         @Override
         public void keyPressed(KeyEvent keyEvent) {
             if(keyEvent.getKeyCode() == KeyEvent.VK_UP){
+                stopMove();
                 movingUp = true;
                 setDirection("Up");
             }
             if(keyEvent.getKeyCode() == KeyEvent.VK_LEFT){
+                stopMove();
                 movingLeft = true;
                 setDirection("Left");
             }
             if(keyEvent.getKeyCode() == KeyEvent.VK_DOWN){
+                stopMove();
                 movingDown = true;
                 setDirection("Down");
             }
             if(keyEvent.getKeyCode() == KeyEvent.VK_RIGHT){
+                stopMove();
                 movingRight = true;
                 setDirection("Right");
+            }
+            if(keyEvent.getKeyCode() == KeyEvent.VK_R){
+                placeObject();
             }
             if(keyEvent.getKeyCode() == KeyEvent.VK_E){
                 exitGame();
@@ -217,16 +271,16 @@ public class Main extends Canvas {
         @Override
         public void keyReleased(KeyEvent keyEvent) {
             if(keyEvent.getKeyCode() == KeyEvent.VK_UP){
-                movingUp = false;
+                stopMove();
             }
             if(keyEvent.getKeyCode() == KeyEvent.VK_LEFT){
-                movingLeft = false;
+                stopMove();
             }
             if(keyEvent.getKeyCode() == KeyEvent.VK_DOWN){
-                movingDown = false;
+                stopMove();
             }
             if(keyEvent.getKeyCode() == KeyEvent.VK_RIGHT){
-                movingRight = false;
+                stopMove();
             }
         }
     }

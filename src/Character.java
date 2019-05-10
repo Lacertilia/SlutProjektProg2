@@ -1,8 +1,11 @@
 import java.awt.*;
 
+/**
+ * @author Rasmus
+ */
 public abstract class Character {
 
-    String Gender;
+    String gender;
 
     public Character(){
 

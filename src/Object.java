@@ -1,3 +1,5 @@
+import java.awt.*;
+
 /**
  * @author Rasmus
  */
@@ -11,6 +13,11 @@ public class Object {
      */
     public Object(){
 
+    }
+
+    public void place(int x, int y){
+        this.x = x;
+        this.y = y;
     }
 
     /**
@@ -28,4 +35,5 @@ public class Object {
     public int getY(){
         return this.y;
     }
+
 }
