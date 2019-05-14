@@ -12,7 +12,8 @@ import static javax.swing.JFrame.EXIT_ON_CLOSE;
 
 public class Main extends Canvas {
     JFrame frame;//Frame that is shown on screen.
-    int multiple = 10;//Multiple for use of a bigger screen than 240px*170px(makes everything bigger.)
+
+    int multiple = 5;//Multiple for use of a bigger screen than 240px*170px(makes everything bigger.)
     int width = 240*multiple;//Width of an original Game Boy (240px)
     int height = 170*multiple;//Height of an original Game Boy (170px)
     private int blockSize = 13;//Size of a block
@@ -21,17 +22,22 @@ public class Main extends Canvas {
     int size = blockSize*multiple;//Size of player
     int move = size;//Moving distance
     int ups = 30;//How many UPS(Updates per second) the game runs
+    int score = 0;//The score. you get higher score the more objects you pick up.
+
     Image dbImage;//Image for double buffered graphics
     static Graphics dbg;//Graphics for double buffered graphics
+
     static boolean Started = false;//Boolean to check if the game is running
     private boolean movingUp = false;//Boolean to check if player is moving Up
     private boolean movingLeft = false;//Boolean to check if the player is moving Left
     private boolean movingDown = false;//Boolean to check if the player is moving Down
     private boolean movingRight = false;//Boolean to check if the player is moving Right
+    private boolean pickedUp = true;//Checks if you have picked up an object
+
     private String direction = "Down";//Direction string for drawing the character in different directions depending on where you last moved.
+
     private long moveStop = 1000000000/3;//Determines how long you need to wait between moving
     private long lastMove = System.nanoTime();//Checks when you last moved
-    private boolean pickedUp = true;//Checks if you have picked up an object
 
     Object o;//Object that the player will pick up.
 
@@ -67,9 +73,11 @@ public class Main extends Canvas {
                 draw();
             }
             checkMovement();
+            checkPickUp();
             if(pickedUp){
                 placeObject();
             }
+
         }
     }
 
@@ -114,13 +122,13 @@ public class Main extends Canvas {
         int objY;
         do{
             objX = (int) (width * Math.random());
-            if(objX%(blockSize * multiple) == 0){
+            if(objX%(size) == 0 && (objX + size) < (width - size)){
                xNotPlaced = false;
             }
         }while(xNotPlaced);
         do{
             objY = (int) (height * Math.random());
-            if(objY%(blockSize * multiple) == 0){
+            if(objY%(size) == 0 && (objY + size) < (height - size)){
                 yNotPlaced = false;
             }
         }while(yNotPlaced);
@@ -137,10 +145,10 @@ public class Main extends Canvas {
         dbImage = createImage(getWidth(), getHeight());
         dbg = dbImage.getGraphics();
 
+        drawObject(dbg);
+
         dbg.setColor(Color.MAGENTA);
         dbg.fillRect(x, y, size, size);
-
-        drawObject(dbg);
 
         getGraphics().drawImage(dbImage, 0, 0, this);
     }
@@ -197,6 +205,17 @@ public class Main extends Canvas {
     }
 
     /**
+     * Checker to see if the character is on the same square as the object. If so pickedUp will become true and another object will be placed.
+     *
+     */
+    private void checkPickUp(){
+        if(x == o.getX() && y == o.getY()){
+            score++;
+            pickedUp = true;
+        }
+    }
+
+    /**
      * Setter for direction.
      * @param s String for direction
      */
@@ -218,6 +237,9 @@ public class Main extends Canvas {
         System.exit(2);
     }
 
+    /**
+     * Used to stop the player movement if you either press another button or release a button
+     */
     private void stopMove(){
         movingUp = false;
         movingLeft = false;
@@ -239,30 +261,30 @@ public class Main extends Canvas {
 
         @Override
         public void keyPressed(KeyEvent keyEvent) {
-            if(keyEvent.getKeyCode() == KeyEvent.VK_UP){
+            if(keyEvent.getKeyCode() == KeyEvent.VK_UP){//If you are moving up
                 stopMove();
                 movingUp = true;
                 setDirection("Up");
             }
-            if(keyEvent.getKeyCode() == KeyEvent.VK_LEFT){
+            if(keyEvent.getKeyCode() == KeyEvent.VK_LEFT){//If you are moving left
                 stopMove();
                 movingLeft = true;
                 setDirection("Left");
             }
-            if(keyEvent.getKeyCode() == KeyEvent.VK_DOWN){
+            if(keyEvent.getKeyCode() == KeyEvent.VK_DOWN){//If you are moving down
                 stopMove();
                 movingDown = true;
                 setDirection("Down");
             }
-            if(keyEvent.getKeyCode() == KeyEvent.VK_RIGHT){
+            if(keyEvent.getKeyCode() == KeyEvent.VK_RIGHT){//If you are moving right
                 stopMove();
                 movingRight = true;
                 setDirection("Right");
             }
-            if(keyEvent.getKeyCode() == KeyEvent.VK_R){
-                placeObject();
+            if(keyEvent.getKeyCode() == KeyEvent.VK_R){//For development(place object on new place)
+                pickedUp = true;
             }
-            if(keyEvent.getKeyCode() == KeyEvent.VK_E){
+            if(keyEvent.getKeyCode() == KeyEvent.VK_E){//For saving and exiting
                 exitGame();
             }
         }

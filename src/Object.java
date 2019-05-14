@@ -1,21 +1,19 @@
-import java.awt.*;
-
 /**
  * @author Rasmus
  */
 
-public class Object {
+class Object {
     private int x;
     private int y;
 
     /**
      * Creator for object.
      */
-    public Object(){
+    Object(){
 
     }
 
-    public void place(int x, int y){
+    void place(int x, int y){
         this.x = x;
         this.y = y;
     }
@@ -24,7 +22,7 @@ public class Object {
      * Getter for x variable.
      * @return x value
      */
-    public int getX(){
+    int getX(){
         return this.x;
     }
 
@@ -32,7 +30,7 @@ public class Object {
      * Getter for y variable.
      * @return y value
      */
-    public int getY(){
+    int getY(){
         return this.y;
     }
 
