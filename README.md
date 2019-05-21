@@ -3,7 +3,7 @@
 ## Planning for the project
 
 ToDo List
-* Graphic
+* Graphics
 * Main(The game)
 * Server (connection to database)
 
